@@ -1,57 +1,73 @@
-﻿#include <iostream>
+#include <iostream>
+#include <vector>
 #include "memhacks.h"
 
 using namespace std;
-
-B::B() : b_s("It's b!") {
-	for (auto i = 0; i < sizeof(data) / sizeof(data[0]); i++)
-		data[i] = i * 2;
-}
-
-/// <summary>
-/// Выводит на экран адреса и размеры объекта типа <see cref="B"/> и его содержимого.
-/// Можно модифицировать для собственных отладочных целей.
-/// </summary>
-/// <param name="b">Изучаемый объект</param>
-void printInternals(const B& b) {
-	const A* a = &b, * a2 = a + 1;
-	cout << "Address of b is 0x" << &b << ", address of b.a_s is 0x" << &b.a_s << ", address of b.b_s is 0x" << &b.b_s << endl;
-	cout << "Size of A is " << sizeof(A) << ", size of B is " << sizeof(B) << endl;
-	cout << "B string is '" << b.getBString() << "'" << endl;
-	//cout << "B data: "; b.printData(cout); cout << endl;
-}
-
-/// <summary>
-/// Извлекает значение <see cref="B::b_s"/> из текущего объекта.
-/// Подразумевается, что текущий объект на самом деле представлено классом <see cref="B"/>.
-/// </summary>
-/// <returns>Значение B::b_s</returns>
-std::string A::getBString() const {
-	// TODO
-}
-
-/// <summary>
-/// Извлекает значения <see cref="A::a_s"/>, <see cref="B::b_s"/> и <see cref="B::data"/>
-/// из текущего объекта и выводит их в текстовом виде в указанный выходной поток
-/// с помощью адресной арифметики.
-/// Подразумевается, что текущий объект на самом деле представлено классом <see cref="B"/>.
-/// </summary>
-void A::printData(std::ostream& os) {
-	// TODO
-}
-
-/// <summary>
-/// Извлекает значения <see cref="A::a_s"/>, <see cref="B::b_s"/> и <see cref="B::data"/>
-/// из текущего объекта и выводит их в текстовом виде в указанный выходной поток
-/// с помощью виртуальных функций, предусмотренных в классе <see cref="A"/>.
-/// </summary>
-void A::printData2(std::ostream& os) {
-	// TODO
-}
-
-int main()
+void printInfofoo(foo a)
 {
-	B b;
-	printInternals(b);
-	return 0;
+    cerr << "foo: Creat object in stack in adress:" << &a << endl;
 }
+void printInfoBar(Bar a)
+{
+    cerr << "Bar: Creat object in stack in adress:" << &a << endl;
+}
+void printInfoBuz(Buz a)
+{
+    cerr << "Buz: Creat object in stack in adress:" << &a << endl;
+}
+void* foo::operator new(size_t size)
+{
+    typeof(malloc(size)) p = malloc(size);
+    cerr << "foo: operator new(" << size << ") adress: " << p << endl;
+    return p;
+}
+void foo::operator delete(void* p)
+{
+    free(p);
+    cerr << "foo: operator delete(" << p << ")" << endl;
+}
+
+void* Bar::operator new(size_t size)
+{
+    typeof(malloc(size)) p = malloc(size);
+    cerr << "Bar: operator new(" << size << ") adress: " << p << endl;
+    return p;
+}
+void Bar::operator delete(void* p)
+{
+    free(p);
+    cerr << "Bar: operator delete(" << p << ")" << endl;
+}
+void* Buz::operator new(size_t size)
+{
+    typeof(malloc(size)) p = malloc(size);
+    cerr << "Buz: operator new(" << size << ") adress: " << p << endl;
+    return p;
+}
+void Buz::operator delete(void* p)
+{
+    free(p);
+    cerr << "Buz: operator delete(" << p << ")" << endl;
+}
+int main(){
+    foo *obj1 = new foo;
+    delete obj1;
+    obj1 =new foo;
+    delete obj1;
+    Bar *obj2 = new Bar;
+    delete obj2;
+    obj2 = new Bar;
+    delete obj2;
+ 
+    foo obj12,obj13;
+    printInfofoo(obj12);
+    printInfofoo(obj13);
+    Bar obj22,obj23;
+    printInfoBar(obj22);
+    printInfoBar(obj23);
+    Buz obj32,obj33;
+    printInfoBuz(obj32);
+    printInfoBuz(obj33);
+    return 0;
+}
+
